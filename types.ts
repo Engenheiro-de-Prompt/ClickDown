@@ -1,3 +1,4 @@
+
 export interface User {
     id: number;
     username: string;
@@ -58,6 +59,7 @@ export interface Task {
     custom_fields?: CustomField[];
     dependencies?: any[];
     linked_tasks?: any[];
+    subtasks?: Task[]; // Recursive definition
     team_id: string;
     url: string;
     permission_level?: string;
@@ -117,3 +119,6 @@ export interface HierarchyState {
     dataSource: 'clickup_api' | 'google_sheets';
     sheetsUrl?: string;
 }
+
+export type ViewType = 'list' | 'board';
+export type GroupBy = 'status' | 'priority' | 'none';
