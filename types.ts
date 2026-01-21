@@ -69,6 +69,11 @@ export interface Task {
     context_list?: string;
     context_folder?: string;
     context_space?: string;
+    
+    // Sheets Integration Fields
+    sheet_row_index?: number; // For identifying row in sheets
+    is_tracking?: boolean;    // UI state for timer
+    last_tracking_start?: number; // Timestamp
 }
 
 export interface Team {
@@ -109,4 +114,6 @@ export interface HierarchyState {
     lists: List[];
     selectedList: string | null;
     extractionMode: 'list' | 'workspace' | null;
+    dataSource: 'clickup_api' | 'google_sheets';
+    sheetsUrl?: string;
 }
