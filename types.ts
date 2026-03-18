@@ -29,6 +29,21 @@ export interface CustomField {
     required?: boolean;
 }
 
+export interface RecurrenceRule {
+    frequency: 'weekly' | 'monthly';
+    interval: number;
+    daysOfWeek?: number[];
+    dayOfMonth?: number;
+    mode: 'reopen' | 'create_new';
+    creationOptions?: {
+        keepStructure: boolean;
+        keepDetails: boolean;
+        keepContent: boolean;
+        keepData: boolean;
+    };
+    nextDueDate?: string;
+}
+
 export interface Task {
     id: string;
     custom_id?: string;
@@ -65,15 +80,22 @@ export interface Task {
     project?: { id: string; name: string; hidden: boolean; access: boolean };
     folder?: { id: string; name: string; hidden: boolean; access: boolean };
     space?: { id: string; name: string };
+    
     // Augmented fields for UI
     context_list?: string;
     context_folder?: string;
     context_space?: string;
     
-    // Sheets Integration Fields
+    // Sheets Integration & Piloto Fields
     sheet_row_index?: number; // For identifying row in sheets
     is_tracking?: boolean;    // UI state for timer
     last_tracking_start?: number; // Timestamp
+    subtasks?: Task[];        // For hierarchical nesting
+    history?: Task[];         // For state history
+    recurrence?: RecurrenceRule; // For recurring tasks
+    webhookId?: string;       // Source identification
+    webhookName?: string;     // Source display name
+    webhookUrl?: string;      // Source API endpoint
 }
 
 export interface Team {
@@ -104,6 +126,30 @@ export interface List {
     folder?: { id: string; name: string; hidden: boolean; access: boolean };
 }
 
+export type ViewType = 'home' | 'list' | 'kanban' | 'table';
+
+export interface HierarchicalList {
+    id: string;
+    name: string;
+    tasks: Task[];
+}
+
+export interface HierarchicalFolder {
+    id: string;
+    name: string;
+    lists: { [key: string]: HierarchicalList };
+}
+
+export interface HierarchicalWorkspace {
+    id: string;
+    name: string;
+    folders: { [key: string]: HierarchicalFolder };
+}
+
+export interface HierarchicalData {
+    [key: string]: HierarchicalWorkspace;
+}
+
 export interface HierarchyState {
     teams: Team[];
     selectedTeam: string | null;
@@ -116,4 +162,18 @@ export interface HierarchyState {
     extractionMode: 'list' | 'workspace' | null;
     dataSource: 'clickup_api' | 'google_sheets';
     sheetsUrl?: string;
+}
+
+export interface Webhook {
+    id: string;
+    name: string;
+    url: string;
+}
+
+export interface ColumnConfig {
+    key: string;
+    label: string;
+    isVisible: boolean;
+    format: 'text' | 'number' | 'date' | 'categorical';
+    options?: string[];
 }
