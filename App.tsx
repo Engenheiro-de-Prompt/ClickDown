@@ -36,9 +36,10 @@ import {
 
 const StepIndicator = ({ current, step, label }: { current: number, step: number, label: string }) => (
   <div className={`flex items-center space-x-2 ${current === step ? 'text-brand-500 font-bold' : current > step ? 'text-emerald-500' : 'text-slate-500'}`}>
-    <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${current === step ? 'border-brand-500 bg-brand-500/10' :
-        current > step ? 'border-emerald-500 bg-emerald-500/10' : 'border-slate-700 bg-slate-800'
-      }`}>
+    <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
+      current === step ? 'border-brand-500 bg-brand-500/10' : 
+      current > step ? 'border-emerald-500 bg-emerald-500/10' : 'border-slate-700 bg-slate-800'
+    }`}>
       {current > step ? <CheckCircle size={16} /> : <span>{step}</span>}
     </div>
     <span className="hidden sm:inline text-xs font-bold uppercase tracking-wider">{label}</span>
@@ -276,7 +277,6 @@ const App: React.FC = () => {
         console.error("Sync failed", e);
         alert("Falha ao salvar no Google Sheets. Verifique a conexão.");
       }
-    }
   };
 
   const handleTaskCreate = async (taskData: Partial<Task>) => {
@@ -310,10 +310,10 @@ const App: React.FC = () => {
     ];
 
     const escape = (val: any) => {
-      if (val === null || val === undefined) return '';
-      const str = String(val);
-      if (str.includes(',') || str.includes('"') || str.includes('\n')) return `"${str.replace(/"/g, '""')}"`;
-      return str;
+        if (val === null || val === undefined) return '';
+        const str = String(val);
+        if (str.includes(',') || str.includes('"') || str.includes('\n')) return `"${str.replace(/"/g, '""')}"`;
+        return str;
     };
 
     const rows = rawTasks.map(t => {
@@ -376,7 +376,7 @@ const App: React.FC = () => {
 
   return (
     <div className="flex h-screen w-full bg-slate-950 text-slate-100 font-sans selection:bg-brand-500/30">
-
+      
       {selectedTask && (
         <TaskDetailModal
           task={selectedTask}
@@ -634,7 +634,7 @@ const App: React.FC = () => {
               <div className="mt-12 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center text-red-400 text-sm animate-in zoom-in duration-300 font-medium">
                 <AlertCircle size={20} className="mr-3" />
                 {error}
-              </div>
+                </div>
             )}
           </div>
         )}
@@ -733,10 +733,10 @@ const App: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
+            </div>
         )}
 
-        {/* STEP 3: DASHBOARD */}
+        {/* STEP 3: DASHBOARD - RECREATED CLICKUP INTERFACE */}
         {currentStep === 3 && (
           <div className="flex-1 overflow-hidden flex flex-col">
             {/* Dashboard Header */}
@@ -832,7 +832,6 @@ const App: React.FC = () => {
                     )}
                 </div>
             </div>
-          </div>
         )}
 
         {/* SCRIPT MODAL */}
@@ -889,6 +888,9 @@ const App: React.FC = () => {
                         </p>
                       </div>
                     </div>
+                    <pre className="p-6 text-xs font-mono text-slate-300 h-full overflow-auto custom-scrollbar">
+                      <code>{generatedCode}</code>
+                    </pre>
                   </div>
 
                   <h4 className="text-[10px] font-black uppercase text-slate-600 tracking-widest mb-6">Guia de Implementação</h4>
@@ -934,8 +936,7 @@ const App: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
       </main>
     </div>
