@@ -502,6 +502,89 @@ function doPost(e) {
 
       return _jsonResponse({ success: true });
     }
+    
+    if (p.action === 'create_task') {
+      const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+      const colMap = {};
+      headers.forEach((h, i) => colMap[h] = i + 1);
+      
+      const newRow = new Array(headers.length).fill('');
+      // Basic mappings for creation
+      if (colMap['ID']) newRow[colMap['ID'] - 1] = 'WH_' + new Date().getTime();
+      if (colMap['Nome']) newRow[colMap['Nome'] - 1] = p.name || p.Task_Name || 'Nova Tarefa';
+      if (colMap['Descrição']) newRow[colMap['Descrição'] - 1] = p.description || p.Task_Content || '';
+      if (colMap['Status']) newRow[colMap['Status'] - 1] = p.status?.status || p.status || 'A Fazer';
+      if (colMap['Prioridade']) newRow[colMap['Prioridade'] - 1] = p.priority?.priority || p.priority || 'Normal';
+      if (colMap['Espaço']) newRow[colMap['Espaço'] - 1] = p.context_space || 'Manual';
+      if (colMap['Pasta']) newRow[colMap['Pasta'] - 1] = p.context_folder || 'Planilha';
+      if (colMap['Lista']) newRow[colMap['Lista'] - 1] = p.context_list || 'Importada';
+      
+      sheet.appendRow(newRow);
+      return _jsonResponse({ success: true, id: newRow[colMap['ID']-1] });
+    }
+
+    if (p.action === 'RENAME_STRUCTURE') {
+      const { structureType, oldName, newName, context } = p;
+      const data = sheet.getDataRange().getValues();
+      const headers = data[0];
+      const colMap = {};
+      headers.forEach((h, i) => colMap[h] = i + 1);
+      
+      let targetCol = '';
+      if (structureType === 'workspace') targetCol = 'Espaço';
+      if (structureType === 'folder') targetCol = 'Pasta';
+      if (structureType === 'list') targetCol = 'Lista';
+      
+      const colIdx = colMap[targetCol];
+      if (!colIdx) return _jsonResponse({ error: 'Coluna não encontrada' });
+      
+      for (let i = 1; i < data.length; i++) {
+        let matches = data[i][colIdx - 1] === oldName;
+        if (matches && structureType === 'folder') {
+          matches = data[i][colMap['Espaço'] - 1] === context.workspace;
+        }
+        if (matches && structureType === 'list') {
+          matches = data[i][colMap['Espaço'] - 1] === context.workspace && data[i][colMap['Pasta'] - 1] === context.folder;
+        }
+        
+        if (matches) {
+          sheet.getRange(i + 1, colIdx).setValue(newName);
+        }
+      }
+      return _jsonResponse({ success: true });
+    }
+
+    if (p.action === 'DELETE_STRUCTURE') {
+      const { structureType, name, context } = p;
+      const data = sheet.getDataRange().getValues();
+      const headers = data[0];
+      const colMap = {};
+      headers.forEach((h, i) => colMap[h] = i + 1);
+      
+      let targetCol = '';
+      if (structureType === 'workspace') targetCol = 'Espaço';
+      if (structureType === 'folder') targetCol = 'Pasta';
+      if (structureType === 'list') targetCol = 'Lista';
+      
+      const colIdx = colMap[targetCol];
+      if (!colIdx) return _jsonResponse({ error: 'Coluna não encontrada' });
+      
+      for (let i = data.length - 1; i >= 1; i--) {
+        let matches = data[i][colIdx - 1] === name;
+        if (matches && structureType === 'folder') {
+          matches = data[i][colMap['Espaço'] - 1] === context.workspace;
+        }
+        if (matches && structureType === 'list') {
+          matches = data[i][colMap['Espaço'] - 1] === context.workspace && data[i][colMap['Pasta'] - 1] === context.folder;
+        }
+        
+        if (matches) {
+          sheet.deleteRow(i + 1);
+        }
+      }
+      return _jsonResponse({ success: true });
+    }
+
     return _jsonResponse({ error: 'Ação desconhecida' });
   } catch (err) {
     return _jsonResponse({ error: err.toString() });
